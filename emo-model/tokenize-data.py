@@ -42,14 +42,14 @@ def preprocess_data(data):
     images = images[...,np.newaxis]
     labels = to_categorical(data['label']-1,num_classes=7)
     
-    #train+validation and test
-    X_temp, X_test, y_temp, y_test = train_test_split(
+    #train and test + validation
+    X_train, X_temp, y_train, y_temp = train_test_split(
         images, labels, test_size=0.2, random_state=42, stratify=labels
     )
     
     #train and validation
-    X_train, X_val, y_train, y_val = train_test_split(
-        X_temp, y_temp, test_size=0.2, random_state=42, stratify=y_temp
+    X_val, X_test, y_val, y_test = train_test_split(
+        X_temp, y_temp, test_size=0.5, random_state=42, stratify=y_temp
     )
     
     return X_train, X_val, X_test, y_train, y_val, y_test
@@ -58,6 +58,9 @@ if __name__ == "__main__":
     data = pd.read_csv("data/data.csv")
     X_train, X_val, X_test, y_train, y_val, y_test = preprocess_data(data)
     # Save the variables
+    print(f"Train data shape: {X_train.shape}")
+    print(f"Validation data shape: {X_val.shape}")
+    print(f"Test data shape: {X_test.shape}")
     
     with open('preprocessed_data_resize.pkl', 'wb') as f:
         pickle.dump((X_train, X_val, X_test, y_train, y_val, y_test), f)

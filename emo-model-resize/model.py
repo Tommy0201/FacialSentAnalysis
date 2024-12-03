@@ -61,7 +61,7 @@ def train_model(model, train_dataset, val_dataset, num_epochs, learning_rate):
         mode='max',
         verbose=1
     )
-    csv_logger = CSVLogger('training_log.csv', append=True)
+    csv_logger = CSVLogger('emo-model-resize/training_log.csv', append=True)
     early_stopping = EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True)
     
     history = model.fit(
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     print("Data loaded")
     
     model = create_model()
-    batch_size, num_epochs, learning_rate = 1024, 50, 1e-3
+    batch_size, num_epochs, learning_rate = 512, 50, 1e-3
     
 
     AUTOTUNE = tf.data.AUTOTUNE
