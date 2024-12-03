@@ -58,7 +58,7 @@ def train_model(model, train_dataset, val_dataset):
     history = model.fit(
         train_dataset,
         validation_data=val_dataset,
-        epochs=3,  # Longer training
+        epochs=12,  # Longer training
         verbose=2,
         callbacks=[checkpoint_callback, csv_logger, early_stopping]
     )
@@ -98,8 +98,8 @@ def save_training_history(history):
 
     
 if __name__ == "__main__":
-    with open('preprocessed_data_dry.pkl', 'rb') as f:
-        X_train, X_val, y_train, y_val = pickle.load(f)
+    with open('preprocessed_data.pkl', 'rb') as f:
+        X_train, X_val, X_test, y_train, y_val, y_test = pickle.load(f)
     print("Finish loading variables")
     model = create_model()
     print("Created the architecture")

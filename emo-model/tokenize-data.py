@@ -55,14 +55,15 @@ def preprocess_data(data):
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 if __name__ == "__main__":
-    data = pd.read_csv("first_100_rows.csv")
-    X_train_dry, X_val_dry, X_test_dry, y_train_dry, y_val_dry, y_test_dry = preprocess_data(data)
-    # Save the variables
+    data = pd.read_csv("data/data.csv")
+    summarize_data(data)
+    # X_train_dry, X_val_dry, X_test_dry, y_train_dry, y_val_dry, y_test_dry = preprocess_data(data)
+    # # Save the variables
     
-    # Save only the dry test variables
-    with open('preprocessed_data_dry.pkl', 'wb') as f:
-        pickle.dump((X_train_dry, X_val_dry, y_train_dry, y_val_dry), f)
-    print("Dry test variables saved.")
+    # # Save only the dry test variables
+    # with open('preprocessed_data.pkl', 'wb') as f:
+    #     pickle.dump((X_train_dry, X_val_dry, y_train_dry, y_val_dry), f)
+    # print("Dry test variables saved.")
     
     # with open('preprocessed_data.pkl', 'wb') as f:
     #     pickle.dump((X_train, X_val, X_test, y_train, y_val, y_test), f)
