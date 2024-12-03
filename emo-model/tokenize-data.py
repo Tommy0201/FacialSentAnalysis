@@ -30,10 +30,10 @@ def summarize_data(data):
     # Calculate and Display Total Samples
     print(f"\nTotal Samples: {len(data)}")
 
-def decode_image(image_data):
+def decode_image(image_data, target_size=(224,224)):
     image_bytes = eval(image_data)['bytes']  
     img = Image.open(io.BytesIO(image_bytes)).convert('L')
-    img = img.resize((48,48))
+    img = img.resize(target_size)
     img_array = np.array(img) / 255.0  # Normalize to [0, 1]
     return img_array
 
@@ -56,17 +56,11 @@ def preprocess_data(data):
 
 if __name__ == "__main__":
     data = pd.read_csv("data/data.csv")
-    summarize_data(data)
-    # X_train_dry, X_val_dry, X_test_dry, y_train_dry, y_val_dry, y_test_dry = preprocess_data(data)
-    # # Save the variables
+    X_train, X_val, X_test, y_train, y_val, y_test = preprocess_data(data)
+    # Save the variables
     
-    # # Save only the dry test variables
-    # with open('preprocessed_data.pkl', 'wb') as f:
-    #     pickle.dump((X_train_dry, X_val_dry, y_train_dry, y_val_dry), f)
-    # print("Dry test variables saved.")
-    
-    # with open('preprocessed_data.pkl', 'wb') as f:
-    #     pickle.dump((X_train, X_val, X_test, y_train, y_val, y_test), f)
-    # print("Variables saved.")
+    with open('preprocessed_data_resize.pkl', 'wb') as f:
+        pickle.dump((X_train, X_val, X_test, y_train, y_val, y_test), f)
+    print("Variables saved.")
 
     # summarize_data(data)  
