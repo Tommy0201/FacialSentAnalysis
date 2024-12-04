@@ -47,7 +47,7 @@ def train_model(model, train_dataset, val_dataset, num_epochs, learning_rate, lo
     )
     model.summary()
     checkpoint_callback = ModelCheckpoint(
-        filepath="eNet-model/model_checkpoint_eNet.keras",
+        filepath="eNet-model-resize/model_checkpoint_eNet.keras",
         save_best_only = True,
         monitor='val_accuracy',
         mode='max',
@@ -66,12 +66,12 @@ def train_model(model, train_dataset, val_dataset, num_epochs, learning_rate, lo
     return history
 
 # Function to save training history
-def save_training_history(history, file_name="eNet-model/training_history_eNet.pkl"):
+def save_training_history(history, file_name="eNet-model-resize/training_history_eNet.pkl"):
     with open(file_name, "wb") as f:
         pickle.dump(history.history, f)
 
 # Function to plot training history
-def plot_training_history(history, file_name="eNet-model/training_history_plot_eNet.png"):
+def plot_training_history(history, file_name="eNet-model-resize/training_history_plot_eNet.png"):
     plt.figure(figsize=(10, 6))
     plt.plot(history.history["loss"], label="Train Loss")
     plt.plot(history.history["val_loss"], label="Validation Loss")
@@ -102,10 +102,10 @@ if __name__ == "__main__":
 
     # Train the model
     print("Dataset prepared. Start training")
-    history = train_model(model, train_dataset, val_dataset, num_epochs=epoch_size, learning_rate=learning_rate, log_file="eNet-model/training_log_eNet.csv")
+    history = train_model(model, train_dataset, val_dataset, num_epochs=epoch_size, learning_rate=learning_rate, log_file="eNet-model-resize/training_log_eNet.csv")
 
     # Save the final model and training history
-    model.save("eNet-model/final_model_eNet.keras")
+    model.save("eNet-model-resize/final_model_eNet.keras")
     save_training_history(history)
     plot_training_history(history)
 

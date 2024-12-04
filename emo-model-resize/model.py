@@ -12,6 +12,7 @@ from tensorflow.keras.mixed_precision import set_global_policy
 
 set_global_policy('mixed_float16')
 
+dir_name = "emo-model-resize"
 def create_model():
 
     inputs = Input(shape=(224, 224, 1))
@@ -61,7 +62,7 @@ def train_model(model, train_dataset, val_dataset, num_epochs, learning_rate):
         mode='max',
         verbose=1
     )
-    csv_logger = CSVLogger('emo-model-resize/training_log.csv', append=True)
+    csv_logger = CSVLogger(dir_name+'training_log.csv', append=True)
     early_stopping = EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True)
     
     history = model.fit(
@@ -96,11 +97,11 @@ def plot_training_history(history):
     plt.ylabel('Loss')
     plt.legend()
     
-    plt.savefig('emo-model-resize/training_history_plot.png')
+    plt.savefig(dir_name+'training_history_plot.png')
     plt.close() 
     
 def save_training_history(history):
-    with open('emo-model-resize/training_history.pkl', 'wb') as f:
+    with open(dir_name+'training_history.pkl', 'wb') as f:
         pickle.dump(history.history, f)
 
 
@@ -110,17 +111,20 @@ if __name__ == "__main__":
     print("Data loaded")
     
     model = create_model()
-    batch_size, num_epochs, learning_rate = 512, 50, 1e-3
     
+    BATCH_SIZE = 512 
+    NUM_EPOCHS = 50  
+    LEARNING_RATE = 1e-3  
+    SHUFFLE_BUFFER = 1600 
 
     AUTOTUNE = tf.data.AUTOTUNE
-    train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train)).shuffle(1000).batch(batch_size).prefetch(AUTOTUNE)
-    val_dataset = tf.data.Dataset.from_tensor_slices((X_val, y_val)).batch(batch_size).prefetch(AUTOTUNE)
+    train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train)).shuffle(SHUFFLE_BUFFER).batch(BATCH_SIZE).prefetch(AUTOTUNE)
+    val_dataset = tf.data.Dataset.from_tensor_slices((X_val, y_val)).batch(BATCH_SIZE).prefetch(AUTOTUNE)
     
     print("Start training")
-    history = train_model(model, train_dataset, val_dataset, num_epochs, learning_rate)
+    history = train_model(model, train_dataset, val_dataset, NUM_EPOCHS, LEARNING_RATE)
     
-    model.save('emo-model-resize/final_model.keras')
+    model.save(dir_name+'final_model.keras')
     save_training_history(history)  
-    plot_training_history(history)  # Save the plot as an image
+    plot_training_history(history) 
     
