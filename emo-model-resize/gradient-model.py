@@ -11,6 +11,7 @@ from tensorflow.keras.mixed_precision import set_global_policy
 
 
 set_global_policy('mixed_float16')
+dir_name = "emo-model-resize"
 
 def create_model():
 
@@ -62,7 +63,7 @@ def create_model():
 #         mode='max',
 #         verbose=1
 #     )
-#     csv_logger = CSVLogger('emo-model-resize/training_log.csv', append=True)
+#     csv_logger = CSVLogger(dir_name+'/training_log.csv', append=True)
 #     early_stopping = EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True)
     
 #     history = model.fit(
@@ -90,7 +91,7 @@ def train_model(model, train_dataset, val_dataset, num_epochs, learning_rate, ac
         mode='max',
         verbose=1
     )
-    csv_logger = CSVLogger('emo-model-resize/training_log.csv', append=True)
+    csv_logger = CSVLogger(dir_name+'/training_log.csv', append=True)
     early_stopping = EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True)
     callbacks = [checkpoint_callback, csv_logger, early_stopping]
     
@@ -141,7 +142,7 @@ def train_model(model, train_dataset, val_dataset, num_epochs, learning_rate, ac
             train_acc_metric.update_state(y_batch_train, logits)
             train_losses.append(float(loss_value))
             
-            if step % 50 == 0:
+            if step % num_epochs == 0:
                 print(f"Step {step}: loss = {float(loss_value):.4f}, accuracy = {float(train_acc_metric.result()):.4f}")
         
         # Validation loop
@@ -219,15 +220,18 @@ def plot_training_history(history):
     plt.ylabel('Loss')
     plt.legend()
     
-    plt.savefig('emo-model-resize/training_history_plot.png')
+    plt.savefig(dir_name+'/training_history_plot.png')
     plt.close() 
     
 def save_training_history(history):
-    with open('emo-model-resize/training_history.pkl', 'wb') as f:
+    with open(dir_name+'/training_history.pkl', 'wb') as f:
         pickle.dump(history.history, f)
 
 
 if __name__ == "__main__":
+    tf.config.threading.set_inter_op_parallelism_threads(8)
+    tf.config.threading.set_intra_op_parallelism_threads(8)
+    print("Finish setting op parallel")
     with open("preprocessed_data_resize.pkl",'rb') as f:
         X_train, X_val, X_test, y_train, y_val, y_test = pickle.load(f)
     print("Data loaded")
@@ -238,21 +242,21 @@ if __name__ == "__main__":
         print('GPU memory growth enabled')
     
     model = create_model()
-    BATCH_SIZE = 128  
-    ACCUMULATION_STEPS = 4  
+    BATCH_SIZE = 64 
+    ACCUMULATION_STEPS = 8
     EFFECTIVE_BATCH_SIZE = BATCH_SIZE * ACCUMULATION_STEPS  # = 512
     NUM_EPOCHS = 50
     LEARNING_RATE = 1e-3
-
+    SHUFFLE_BUFFER = 3200
 
     AUTOTUNE = tf.data.AUTOTUNE
-    train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train)).shuffle(1600).batch(BATCH_SIZE).prefetch(AUTOTUNE)
+    train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train)).shuffle(SHUFFLE_BUFFER).batch(BATCH_SIZE).prefetch(AUTOTUNE)
     val_dataset = tf.data.Dataset.from_tensor_slices((X_val, y_val)).batch(BATCH_SIZE).prefetch(AUTOTUNE)
     
     print("Start training")
     history = train_model(model, train_dataset, val_dataset, NUM_EPOCHS, LEARNING_RATE, ACCUMULATION_STEPS)
     
-    model.save('emo-model-resize/final_model.keras')
+    model.save(dir_name+'/final_model.keras')
     save_training_history(history)  
     plot_training_history(history) 
     
