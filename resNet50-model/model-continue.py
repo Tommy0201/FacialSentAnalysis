@@ -12,9 +12,10 @@ set_global_policy('float32')
 dir_name = "resNet50-model/"
 
 # Define a custom spatial attention layer
+@tf.keras.utils.register_keras_serializable()
 class SpatialAttention(tf.keras.layers.Layer):
-    def __init__(self):
-        super(SpatialAttention, self).__init__()
+    def __init__(self, trainable=True, dtype=None, **kwargs):
+        super(SpatialAttention, self).__init__(trainable=trainable, dtype=dtype, **kwargs)
         self.conv = layers.Conv2D(1, kernel_size=7, padding="same", activation="sigmoid")
 
     def call(self, inputs):
@@ -23,23 +24,17 @@ class SpatialAttention(tf.keras.layers.Layer):
         attn_map = self.conv(inputs)
         return inputs * attn_map
 
-# Define the ResNet-50 model with spatial attention
-def create_model(num_classes=7):
-    # Load ResNet-50 without the top layers
-    base_model = ResNet50(include_top=False, weights="imagenet", pooling=None, input_shape=(224, 224, 3))
-    base_model.trainable = False  # Freeze the base model weights
+    def get_config(self):
+        base_config = super(SpatialAttention, self).get_config()
+        return base_config
 
-    inputs = tf.keras.Input(shape=(224, 224, 1))    
-    x = layers.Concatenate()([inputs, inputs, inputs])
-    x = base_model(x, training=False)    
-    x = SpatialAttention()(x)    
-    x = layers.GlobalAveragePooling2D()(x)    
-    outputs = layers.Dense(num_classes, activation="softmax", dtype='float32')(x)
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
 
-    model = Model(inputs, outputs)
-    return model
 
-def train_model(model, train_dataset, val_dataset, num_epochs, learning_rate, log_file):
+
+def continue_train_model(model, train_dataset, val_dataset, learning_rate, log_file, total_epochs, curr_epochs):
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
         loss="categorical_crossentropy",
@@ -59,7 +54,8 @@ def train_model(model, train_dataset, val_dataset, num_epochs, learning_rate, lo
     history = model.fit(
         train_dataset,
         validation_data=val_dataset,
-        epochs=num_epochs,
+        epochs=total_epochs,
+        initial_epoch = curr_epochs,
         verbose=1,
         callbacks=[checkpoint_callback, csv_logger, early_stopping]
     )
@@ -90,15 +86,23 @@ if __name__ == "__main__":
     AUTOTUNE = tf.data.AUTOTUNE
     train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train)).shuffle(25600).batch(batch_size).prefetch(AUTOTUNE)
     val_dataset = tf.data.Dataset.from_tensor_slices((X_val, y_val)).batch(batch_size).prefetch(AUTOTUNE)
-
     print("Dataset prepared")
-    model = create_model(num_classes=7)
-    print("Created the architecture")
+    
+    curr_epochs = 4
+    add_epochs = 46
+    total_epochs = curr_epochs + add_epochs
+    
+    model_path = dir_name+ "model_checkpoint_resNet50.keras"
+    model = tf.keras.models.load_model(model_path, custom_objects={'SpatialAttention': SpatialAttention})
+    
+    print("Model Loaded")
 
-    # Train the model
-    print("Dataset prepared. Start training")
-    history = train_model(model, train_dataset, val_dataset, num_epochs=epoch_size, learning_rate=learning_rate, log_file=dir_name + "training_log_resNet50.csv")
-
+    
+    history = continue_train_model(model, train_dataset, val_dataset, learning_rate, 
+                                   log_file=dir_name + "training_log_resNet50.csv", 
+                                   total_epochs=total_epochs, 
+                                   curr_epochs=curr_epochs)
+    
     # Save the final model and training history
     model.save(dir_name + "final_model_resNet50.keras")
     save_training_history(history)

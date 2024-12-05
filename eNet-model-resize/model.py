@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers, Model, Sequential
 from tensorflow.keras.applications import EfficientNetB0
+from tensorflow.keras.applications import EfficientNetB4  # Changed to B4 ~ 19B
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,7 +10,7 @@ from tensorflow.keras.mixed_precision import set_global_policy
 
 # Enable mixed precision
 set_global_policy('float32')
-dir_name = "eNet-model-resize"
+dir_name = "eNetB4-model/"
 
 # Define a custom spatial attention layer
 class SpatialAttention(tf.keras.layers.Layer):
@@ -26,7 +27,7 @@ class SpatialAttention(tf.keras.layers.Layer):
 
 # Define the EfficientNet model with attention
 def create_model(num_classes=7):
-    base_model = EfficientNetB0(include_top=False, weights="imagenet", pooling="avg", input_shape=(224,224,3))
+    base_model = EfficientNetB4(include_top=False, weights="imagenet", pooling="avg", input_shape=(224,224,3))
     base_model.trainable = False  # Freeze the base model weights
 
     inputs = tf.keras.Input(shape=(224,224,1))
