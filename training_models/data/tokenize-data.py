@@ -30,7 +30,7 @@ def summarize_data(data):
     # Calculate and Display Total Samples
     print(f"\nTotal Samples: {len(data)}")
 
-def decode_image(image_data, target_size=(224,224)):
+def decode_image(image_data, target_size=(48,48)):
     image_bytes = eval(image_data)['bytes']  
     img = Image.open(io.BytesIO(image_bytes)).convert('L')
     img = img.resize(target_size)
@@ -55,14 +55,14 @@ def preprocess_data(data):
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 if __name__ == "__main__":
-    data = pd.read_csv("data/data.csv")
+    data = pd.read_csv("training_models/data/data2.csv")
     X_train, X_val, X_test, y_train, y_val, y_test = preprocess_data(data)
     # Save the variables
     print(f"Train data shape: {X_train.shape}")
     print(f"Validation data shape: {X_val.shape}")
     print(f"Test data shape: {X_test.shape}")
     
-    with open('preprocessed_data_resize.pkl', 'wb') as f:
+    with open('training_models/preprocessed2_data.pkl', 'wb') as f:
         pickle.dump((X_train, X_val, X_test, y_train, y_val, y_test), f)
     print("Variables saved.")
 
