@@ -35,6 +35,8 @@ affectnethq_df['label'] = affectnethq_df['label'].map(emotion_map)
 affectnethq_df['source'] = 'affectnethq'
 affectnethq_df.to_csv("affectnet.csv", index=False)
 
+
+
 # Merge datasets
 data = pd.concat([raf_db_df, affectnethq_df], ignore_index=True) # 43,162 samples
 data.to_csv("data.csv", index=False)
