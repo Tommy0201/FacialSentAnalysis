@@ -53,7 +53,7 @@ data = pd.concat([raf_db_df, affectnet_df], ignore_index=True) # 43,162 samples
 # Print the last row
 print("Last row:")
 print(data.iloc[30000])  # tail(1) returns the last row
-# data.to_csv("training_models/data/data2.csv", index=False)
+data.to_csv("training_models/data/data2.csv", index=False)
 
 bytes2 = data.iloc[30000]['image']['bytes']
 image2 = Image.open(io.BytesIO(bytes2))

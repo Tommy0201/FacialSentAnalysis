@@ -143,11 +143,11 @@ def face_mp_detection(model, emotion_dict, frame_skip_rate, img_size):
     
 if __name__ == "__main__":
     
-    #emo-model and eNet-model are the two first train with 48x48, image label 1-7
-    #emo-model-resize, eNetB4, resNet50 are the three models trained with 224x224, image label 1-7
-    #emo-model-2, eNetB0-2 are the two models trained with 48x48, image label 0-6 --> BOTH PERFORM BADLY
+    #STAGE 1: emo-model and eNet-model are the two first train with 48x48, image label 1-7
+    #STAGE 2: emo-model-resize, eNetB4, resNet50 are the three models trained with 224x224, image label 1-7
+    #STAGE 3: emo-model-2, eNetB0-2 are the two models trained with 48x48, image label 0-6 --> BOTH PERFORM BADLY
     
-    model_name = "customize"
+    model_name = "eNetB4"
     image_size = (48,48)
 
 
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     elif "eNetB4" == model_name: #enetB4, 224x224, 1-7, kernal_size = 7 
         emotion_dict = {1: "Surprise", 2: "Fear", 3: "Disgust", 4: "Happy", 5: "Sad", 6: "Angry", 7: "Neutral"}
         model = create_eNetB4_model()
-        model.load_weights('training_models/eNetB4-model/model_checkpoint_eNetB4.keras') # perform pretty well 224x224, 0-6
+        model.load_weights('training_models/stage2/eNetB4-model/model_checkpoint_eNetB4.keras') # perform pretty well 224x224, 0-6
         image_size = (224,224)
         base_model = EfficientNetB4(include_top=False, weights="imagenet", pooling="avg", input_shape=(224,224,3))
         

@@ -55,14 +55,14 @@ def preprocess_data(data):
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 if __name__ == "__main__":
-    data = pd.read_csv("training_models/data/data2.csv")
+    data = pd.read_csv("training_models/data/affectnet.csv")
     X_train, X_val, X_test, y_train, y_val, y_test = preprocess_data(data)
     # Save the variables
     print(f"Train data shape: {X_train.shape}")
     print(f"Validation data shape: {X_val.shape}")
     print(f"Test data shape: {X_test.shape}")
     
-    with open('training_models/preprocessed2_data.pkl', 'wb') as f:
+    with open('training_models/affectnet_data.pkl', 'wb') as f:
         pickle.dump((X_train, X_val, X_test, y_train, y_val, y_test), f)
     print("Variables saved.")
 
