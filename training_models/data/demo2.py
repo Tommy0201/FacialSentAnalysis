@@ -82,3 +82,51 @@ image2.save("image2.png", "PNG")
 
 # affectnet (27,823)
 # rafdb (15,339)
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Emotion Class Distribution for Each Source
+fig, axes = plt.subplots(1, 2, figsize=(15, 6), sharey=True)
+
+for ax, source in zip(axes, data['source'].unique()):
+    sns.countplot(data=data[data['source'] == source], x='label', ax=ax, palette='muted')
+    ax.set_title(f'Emotion Class Distribution in {source.upper()}', fontsize=14)
+    ax.set_xlabel('Emotion Classes', fontsize=12)
+    ax.set_ylabel('Count', fontsize=12)
+    ax.set_xticks(range(7))
+    ax.set_xticklabels(["Angry", "Disgust", "Fear", "Happy", "Neutral", "Sad", "Surprise"], rotation=45)
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+
+plt.tight_layout()
+plt.show()
+
+
+# Distribution of Emotion Classes
+class_counts = data['label'].value_counts()
+class_names = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=class_names, y=class_counts.values, palette="viridis")
+plt.title("Class Distribution")
+plt.xlabel("Emotion Class")
+plt.ylabel("Number of Samples")
+plt.xticks(rotation=45)
+plt.show()
+
+# Sample Images with Emotion Labels
+import random
+emotion_names = ["Angry", "Disgust", "Fear", "Happy", "Neutral", "Sad", "Surprise"]
+fig, axes = plt.subplots(7, 5, figsize=(15, 20))
+
+for emotion, ax_row in zip(range(7), axes):
+    emotion_samples = data[data['label'] == emotion].sample(5, random_state=42)
+    for ax, (_, row) in zip(ax_row, emotion_samples.iterrows()):
+        img = Image.open(io.BytesIO(row['image']['bytes']))
+        ax.imshow(img)
+        ax.axis('off')
+        ax.set_title(f"Class: {emotion_names[emotion]}")  # Change title to emotion name
+
+plt.tight_layout()
+plt.show()
