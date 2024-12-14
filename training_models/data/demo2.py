@@ -53,7 +53,18 @@ data = pd.concat([raf_db_df, affectnet_df], ignore_index=True) # 43,162 samples
 # Print the last row
 print("Last row:")
 print(data.iloc[30000])  # tail(1) returns the last row
-data.to_csv("training_models/data/data2.csv", index=False)
+
+print("Unique labels in the combined dataset:")
+print(data['label'].unique())
+print("\nValue counts for labels:")
+print(data['label'].value_counts().sort_index())
+
+print("\nUnique sources:")
+print(data['source'].unique())
+print("\nValue counts for sources:")
+print(data['source'].value_counts())
+
+# data.to_csv("training_models/data/data2.csv", index=False)
 
 bytes2 = data.iloc[30000]['image']['bytes']
 image2 = Image.open(io.BytesIO(bytes2))

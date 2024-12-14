@@ -29,8 +29,8 @@ def plot_training_history(history, output_path):
     plt.close()  # Close the plot to avoid display on non-interactive environments
     
 if __name__ == "__main__":
-    history = pd.read_csv("training_models/emo-model-2/training_log.csv")
-    output_path = 'training_models/emo-model-2/training_history_plot.png'
+    history = pd.read_csv("training_models/stage3/eNetB4-model2/training_log_eNetB4.csv")
+    output_path ="training_models/stage3/eNetB4-model2/training_log_eNetB4.png"
     plot_training_history(history,output_path)  # Save the plot as an image
 
     
