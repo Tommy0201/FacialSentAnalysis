@@ -13,7 +13,7 @@ import json
 
 # Create results directory relative to script location
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-RESULTS_DIR = os.path.join(SCRIPT_DIR, 's3-cus-emo')  # Example directory name
+RESULTS_DIR = os.path.join(SCRIPT_DIR, 's3-eNet-B4')  # Example directory name
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
 
@@ -106,6 +106,8 @@ def load_eNetB0_model_and_data(model_path, test_data_path):
     
     with open(test_data_path, 'rb') as f:
         _, _, X_test, _, _, y_test = pickle.load(f)
+    X_test = X_test[:4310]
+    y_test = y_test[:4310]
             
     return model, X_test, y_test
 
@@ -179,7 +181,7 @@ def evaluate_model(model, X_test, y_test):
     y_pred = model.predict(test_dataset)
     # Add 1 to predictions since our classes are 1-7 instead of 0-6
     y_pred_classes = np.argmax(y_pred, axis=1) 
-    y_test_classes = np.argmax(y_test, axis=1) 
+    y_test_classes = np.argmax(y_test, axis=1)
     
     return {
         'loss': loss,
@@ -224,8 +226,8 @@ def plot_sample_predictions(X_test, y_true, y_pred, num_samples=5):
     plt.close()
 
 def main():
-    model, X_test, y_test = load_customize_model_and_data(
-        'training_models/stage3/emo-model-2/final_model_2.keras',
+    model, X_test, y_test = load_eNetB4_model_and_data(
+        'training_models/stage3/eNetB4-model2/model_checkpoint_eNetB4.keras',
         'training_models/preprocessed2_data.pkl'
     )
     

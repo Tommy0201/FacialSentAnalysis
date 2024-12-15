@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers, Model
+from tensorflow.keras.models import Sequential
 from tensorflow.keras.applications import EfficientNetB0, EfficientNetB4
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Dropout, Flatten, Dense, Reshape, MultiHeadAttention, LayerNormalization
 from tensorflow.keras.applications import ResNet50
@@ -101,7 +102,6 @@ def create_resNet_model(num_classes=7):
     model = Model(inputs, outputs)
     return model
 
-    
 def face_mp_detection(model, emotion_dict, frame_skip_rate, img_size):
     mp_face_detection = mp.solutions.face_detection
     cap = cv2.VideoCapture(0)
@@ -147,36 +147,41 @@ if __name__ == "__main__":
     #STAGE 2: emo-model-resize, eNetB4, resNet50 are the three models trained with 224x224, image label 1-7
     #STAGE 3: emo-model-2, eNetB0-2 are the two models trained with 48x48, image label 0-6 --> BOTH PERFORM BADLY
     
-    model_name = "eNetB4"
+    model_name = "customize"
     image_size = (48,48)
 
 
     if "eNetB0" == model_name: #enetB0-2, 48x48, 1-0, kernal_size = 5  --> PERFORM BADLY
         emotion_dict = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
         model = create_eNetB0_model()
-        model.load_weights('training_models/eNetB0-model-2/final_model_eNet.keras')
+        model.load_weights('training_models/stage3/eNetB0-model-2/final_model_eNet.keras')
         
         
-    elif "eNetB4" == model_name: #enetB4, 224x224, 1-7, kernal_size = 7 
+    elif "eNetB4" == model_name: #enetB4, 224x224, 1-7, kernal_size = 7   --> PERFORM PRETTY WELL
         emotion_dict = {1: "Surprise", 2: "Fear", 3: "Disgust", 4: "Happy", 5: "Sad", 6: "Angry", 7: "Neutral"}
         model = create_eNetB4_model()
-        model.load_weights('training_models/stage2/eNetB4-model/model_checkpoint_eNetB4.keras') # perform pretty well 224x224, 0-6
+        model.load_weights('training_models/stage2/eNetB4-model/model_checkpoint_eNetB4.keras') 
         image_size = (224,224)
-        base_model = EfficientNetB4(include_top=False, weights="imagenet", pooling="avg", input_shape=(224,224,3))
         
     elif "customize" == model_name:  #customize model 48x48, image label 0-6, kernal_size = 7, GOT MIXED UP 
         emotion_dict = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
         model = create_customize_model()
-        model.load_weights('training_models/emo-model-2/model_checkpoint.keras') 
-        
-    elif "resNet" == model_name:
+        model.load_weights('training_models/stage3/emo-model-2/final_model_2.keras') 
+
+    elif "eNetB42" == model_name:  #customize model 224x224, image label 0-6, kernal_size = 7
+        emotion_dict = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
+        model = create_eNetB4_model()
+        image_size = (224,224)
+        model.load_weights('training_models/stage3/eNetB4-model2/model_checkpoint_eNetB4.keras') 
+    
+    elif "resNet" == model_name: #resNet model 224x224, image label 0-6, kernal_size = 5, #KINDA MIXED
         emotion_dict = {1: "Surprise", 2: "Fear", 3: "Disgust", 4: "Happy", 5: "Sad", 6: "Angry", 7: "Neutral"}
         model = create_resNet_model()
-        model.load_weights('training_models/resNet50-model/model_checkpoint_resNet50.keras') #kinda mixed 224x224
+        model.load_weights('training_models/stage2/resNet50-model/model_checkpoint_resNet50.keras') 
         image_size = (224,224)
         # False since always happy`
     
     cv2.ocl.setUseOpenCL(False)
-
-    frame_skip = 5000
+    
+    frame_skip = 1
     face_mp_detection(model,emotion_dict,frame_skip, img_size=image_size)
